@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgriLink | Farmer Procurement Management</title>
+<style>
+:root{--green:#176b3a;--green2:#238b52;--light:#f3f7f4;--dark:#173322;--muted:#66736b;--white:#fff;--border:#dfe7e1;--danger:#b42318}
+*{box-sizing:border-box} body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--light);color:var(--dark)}
+header{background:linear-gradient(135deg,#124d2d,#238b52);color:#fff;padding:28px 5%}
+.brand{display:flex;justify-content:space-between;align-items:center;gap:20px}.brand h1{margin:0;font-size:28px}.brand p{margin:6px 0 0;opacity:.88}
+.badge{background:#ffffff22;border:1px solid #ffffff44;padding:8px 12px;border-radius:20px;font-size:13px}
+nav{background:#fff;border-bottom:1px solid var(--border);padding:0 5%;display:flex;gap:6px;position:sticky;top:0;z-index:5}
+nav button{border:0;background:none;padding:15px 18px;font-weight:700;color:#526057;cursor:pointer}
+nav button.active{color:var(--green);border-bottom:3px solid var(--green)}
+main{max-width:1200px;margin:28px auto;padding:0 20px}.section{display:none}.section.active{display:block}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}.card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:0 3px 14px #1733220b}.card .label{font-size:13px;color:var(--muted)}.card .value{font-size:27px;font-weight:800;margin-top:7px}
+.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:20px}.panel{background:#fff;border:1px solid var(--border);border-radius:14px;padding:22px;box-shadow:0 3px 14px #1733220b}.panel h2{margin:0 0 18px;font-size:19px}
+form{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.full{grid-column:1/-1}label{font-size:13px;font-weight:700;color:#435148}input,select,textarea{width:100%;margin-top:6px;border:1px solid #cfd9d2;border-radius:9px;padding:11px 12px;font:inherit;background:#fff}textarea{min-height:72px;resize:vertical}
+button.primary{background:var(--green);color:#fff;border:0;border-radius:9px;padding:12px 17px;font-weight:800;cursor:pointer}button.secondary{background:#eef4ef;color:var(--green);border:1px solid #cfe0d4;border-radius:9px;padding:10px 14px;font-weight:700;cursor:pointer}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:5px}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--border);vertical-align:top}th{color:#526057;background:#f8faf8;position:sticky;top:0} .tablewrap{overflow:auto;max-height:520px;border:1px solid var(--border);border-radius:10px}
+.searchbar{display:flex;gap:10px;margin-bottom:14px}.searchbar input{margin:0;flex:1}.empty{text-align:center;padding:35px;color:var(--muted)}
+.hero{background:#fff;border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:22px}.hero h2{font-size:30px;margin:0 0 8px}.hero p{color:var(--muted);max-width:760px;line-height:1.6}
+.note{background:#fff8e8;border:1px solid #f1d79b;padding:13px 15px;border-radius:10px;color:#745b1c;font-size:13px;margin-top:15px}
+footer{text-align:center;color:#738078;padding:35px 20px;font-size:13px}
+.small{font-size:12px;color:var(--muted)}.danger{color:var(--danger);border-color:#efc9c5;background:#fff7f6}
+@media(max-width:850px){.cards{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}form{grid-template-columns:1fr}.full{grid-column:auto}.brand{align-items:flex-start;flex-direction:column}}
+@media(max-width:520px){.cards{grid-template-columns:1fr}nav{overflow:auto}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div>
+      <h1>🌾 AgriLink Procurement</h1>
+      <p>Connecting small farmers with quality agricultural markets</p>
+    </div>
+    <div class="badge">College Project Demo • Farmer → Collection → Quality → Market</div>
+  </div>
+</header>
+
+<nav>
+  <button class="tab active" data-target="dashboard">Dashboard</button>
+  <button class="tab" data-target="purchase">New Purchase</button>
+  <button class="tab" data-target="records">Purchase Records</button>
+  <button class="tab" data-target="about">About Project</button>
+</nav>
+
+<main>
+<section id="dashboard" class="section active">
+  <div class="hero">
+    <h2>Farmer Procurement Dashboard</h2>
+    <p>Record agricultural produce purchased from small farmers, track quantities and purchase values, and maintain a simple digital procurement history.</p>
+    <div class="actions">
+      <button class="primary" onclick="showTab('purchase')">+ Record New Purchase</button>
+      <button class="secondary" onclick="exportCSV()">Export Records CSV</button>
+    </div>
+  </div>
+  <div class="cards">
+    <div class="card"><div class="label">Registered Purchases</div><div class="value" id="statPurchases">0</div></div>
+    <div class="card"><div class="label">Farmers Recorded</div><div class="value" id="statFarmers">0</div></div>
+    <div class="card"><div class="label">Total Quantity (kg)</div><div class="value" id="statQty">0</div></div>
+    <div class="card"><div class="label">Total Purchase Value</div><div class="value" id="statValue">₹0</div></div>
+  </div>
+  <div class="grid">
+    <div class="panel">
+      <h2>Recent Purchases</h2>
+      <div class="tablewrap"><table><thead><tr><th>Date</th><th>Farmer</th><th>Produce</th><th>Qty</th><th>Value</th></tr></thead><tbody id="recentBody"></tbody></table></div>
+    </div>
+    <div class="panel">
+      <h2>Procurement Flow</h2>
+      <p>1. <b>Farmer registration</b><br><span class="small">Capture farmer identity and contact details.</span></p>
+      <p>2. <b>Purchase & collection</b><br><span class="small">Record produce, quantity, quality grade and purchase price.</span></p>
+      <p>3. <b>Quality sorting</b><br><span class="small">Separate acceptable produce from rejected/damaged stock.</span></p>
+      <p>4. <b>Market / export</b><br><span class="small">Prepare quality goods for inter-state or international buyers.</span></p>
+      <div class="note">Demo data is stored only in this browser using local storage. It is not a real production database.</div>
+    </div>
+  </div>
+</section>
+
+<section id="purchase" class="section">
+  <div class="panel">
+    <h2>Record Agricultural Purchase</h2>
+    <form id="purchaseForm">
+      <div><label>Farmer Name *</label><input id="farmer" required placeholder="e.g. Ramesh Patil"></div>
+      <div><label>Purchase Date *</label><input id="date" type="date" required></div>
+      <div><label>Produce *</label><select id="produce" required><option value="">Select produce</option><option>Wheat</option><option>Rice</option><option>Onion</option><option>Tomato</option><option>Garlic</option><option>Maize</option><option>Other</option></select></div>
+      <div><label>Quality Grade</label><select id="grade"><option>A - Export Quality</option><option>B - Standard</option><option>C - Local / Processing</option><option>Rejected</option></select></div>
+      <div><label>Quantity (kg) *</label><input id="qty" type="number" min="0.1" step="0.1" required placeholder="e.g. 500"></div>
+      <div><label>Purchase Rate (₹ / kg) *</label><input id="rate" type="number" min="0" step="0.01" required placeholder="e.g. 28"></div>
+      <div><label>Payment Status</label><select id="payment"><option>Paid</option><option>Partially Paid</option><option>Pending</option></select></div>
+      <div><label>Collection Location</label><input id="location" placeholder="Village / collection centre"></div>
+      <div><label>Farmer Contact Number *</label><input id="phone" type="tel" required placeholder="10-digit mobile number"></div>
+      <div><label>Farmer Address</label><input id="address" placeholder="Village, Taluka, District"></div>
+      <div class="full"><label>Notes / Quality Observations</label><textarea id="notes" placeholder="Moisture, size, colour, sorting notes, transport details..."></textarea></div>
+      <div class="full actions"><button class="primary" type="submit">Save Purchase Record</button><button class="secondary" type="button" onclick="document.getElementById('purchaseForm').reset(); setToday()">Clear</button></div>
+    </form>
+  </div>
+</section>
+
+<section id="records" class="section">
+  <div class="panel">
+    <h2>Purchase Records</h2>
+    <div class="searchbar"><input id="search" placeholder="Search farmer, produce, village, phone..." oninput="renderRecords()"><button class="secondary" onclick="exportCSV()">Export CSV</button><button class="secondary danger" onclick="clearAll()">Clear Demo Data</button></div>
+    <div class="tablewrap"><table><thead><tr><th>Date</th><th>Farmer</th><th>Contact</th><th>Produce</th><th>Grade</th><th>Qty (kg)</th><th>Rate</th><th>Total</th><th>Payment</th><th>Location</th><th>Action</th></tr></thead><tbody id="recordsBody"></tbody></table></div>
+  </div>
+</section>
+
+<section id="about" class="section">
+  <div class="panel">
+    <h2>Project Concept</h2>
+    <p><b>AgriLink Procurement</b> is a digital record system for merchants who purchase wheat, grains and vegetables directly from small farmers.</p>
+    <h3>Problem</h3><p>Small agricultural suppliers and local procurement businesses often depend on paper records, making it difficult to track purchase history, quantities, payments and quality.</p>
+    <h3>Solution</h3><p>The system creates a structured digital record at the moment produce is purchased. The merchant can later search the farmer, verify the transaction and monitor procurement totals.</p>
+    <h3>Additional data fields added</h3>
+    <ul><li>Quality grade</li><li>Payment status</li><li>Collection location</li><li>Purchase rate per kg</li><li>Calculated total purchase value</li><li>Quality / inspection notes</li></ul>
+    <h3>Future scope</h3>
+    <ul><li>Farmer ID and Aadhaar-independent business identification</li><li>Digital weighing-machine integration</li><li>Photo of produce / quality certificate</li><li>Inventory after sorting and rejection</li><li>Transport and logistics tracking</li><li>Buyer/export order management</li><li>Real cloud database with staff login</li></ul>
+  </div>
+</section>
+</main>
+<footer>AgriLink Procurement • College Presentation Prototype • Built for demonstration purposes</footer>
+
+<script>
+const KEY='agrilink_purchase_records_v1';
+let records=JSON.parse(localStorage.getItem(KEY)||'[]');
+
+function save(){localStorage.setItem(KEY,JSON.stringify(records)); updateDashboard(); renderRecords();}
+function money(n){return '₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:2});}
+function setToday(){document.getElementById('date').value=new Date().toISOString().slice(0,10);}
+function showTab(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelector(`[data-target="${id}"]`).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>showTab(b.dataset.target));
+
+document.getElementById('purchaseForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const qty=Number(document.getElementById('qty').value);
+  const rate=Number(document.getElementById('rate').value);
+  const phone=document.getElementById('phone').value.replace(/\D/g,'');
+  if(phone.length!==10){alert('Please enter a valid 10-digit contact number.');return;}
+  records.unshift({
+    id:Date.now(), farmer:farmer.value.trim(), date:date.value, produce:produce.value,
+    grade:grade.value, qty, rate, total:qty*rate, payment:payment.value,
+    location:location.value.trim(), phone, address:address.value.trim(), notes:notes.value.trim()
+  });
+  save(); e.target.reset(); setToday(); showTab('records');
+  alert('Purchase record saved successfully.');
+});
+
+function updateDashboard(){
+  const farmers=new Set(records.map(r=>r.farmer.toLowerCase())).size;
+  const qty=records.reduce((a,r)=>a+Number(r.qty),0);
+  const value=records.reduce((a,r)=>a+Number(r.total),0);
+  statPurchases.textContent=records.length; statFarmers.textContent=farmers;
+  statQty.textContent=qty.toLocaleString('en-IN',{maximumFractionDigits:1}); statValue.textContent=money(value);
+  recentBody.innerHTML=records.slice(0,8).map(r=>`<tr><td>${r.date}</td><td>${esc(r.farmer)}</td><td>${esc(r.produce)}</td><td>${r.qty} kg</td><td>${money(r.total)}</td></tr>`).join('')||'<tr><td colspan="5" class="empty">No purchases yet. Add your first record.</td></tr>';
+}
+function renderRecords(){
+  const q=(document.getElementById('search')?.value||'').toLowerCase();
+  const rows=records.filter(r=>[r.farmer,r.produce,r.location,r.phone,r.address,r.grade,r.payment].join(' ').toLowerCase().includes(q));
+  recordsBody.innerHTML=rows.map(r=>`<tr>
+    <td>${r.date}</td><td><b>${esc(r.farmer)}</b><br><span class="small">${esc(r.address)}</span></td>
+    <td>${esc(r.phone)}</td><td>${esc(r.produce)}</td><td>${esc(r.grade)}</td>
+    <td>${r.qty}</td><td>${money(r.rate)}</td><td><b>${money(r.total)}</b></td>
+    <td>${esc(r.payment)}</td><td>${esc(r.location)}</td>
+    <td><button class="secondary danger" onclick="deleteRecord(${r.id})">Delete</button></td>
+  </tr>`).join('')||'<tr><td colspan="11" class="empty">No matching records.</td></tr>';
+}
+function deleteRecord(id){if(confirm('Delete this purchase record?')){records=records.filter(r=>r.id!==id);save();}}
+function clearAll(){if(confirm('Clear all demo records from this browser?')){records=[];save();}}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function exportCSV(){
+  if(!records.length){alert('No records to export.');return;}
+  const headers=['Date','Farmer Name','Phone','Address','Produce','Quality Grade','Quantity kg','Rate ₹/kg','Total ₹','Payment Status','Collection Location','Notes'];
+  const lines=[headers,...records.map(r=>[r.date,r.farmer,r.phone,r.address,r.produce,r.grade,r.qty,r.rate,r.total,r.payment,r.location,r.notes])]
+    .map(row=>row.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob=new Blob([lines],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='agrilink-purchase-records.csv';a.click();URL.revokeObjectURL(a.href);
+}
+setToday(); updateDashboard(); renderRecords();
+</script>
+</body>
+</html>
